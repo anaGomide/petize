@@ -56,28 +56,50 @@ class ProfilePage extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
                       width: 500,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                          hintText: loadedUser.name ?? loadedUser.login,
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                        ),
-                        onSubmitted: (query) {
-                          bloc.fetchProfile(query);
+                      child: StreamBuilder<List<String>>(
+                        stream: bloc.recentSearchesStream, // Stream de sugestões recentes
+                        builder: (context, snapshot) {
+                          final suggestions = snapshot.data ?? [];
+                          return Autocomplete<String>(
+                            optionsBuilder: (TextEditingValue textEditingValue) {
+                              if (textEditingValue.text.isEmpty) {
+                                return const Iterable<String>.empty();
+                              }
+                              return suggestions.where((suggestion) => suggestion.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                            },
+                            onSelected: (String selected) {
+                              bloc.fetchProfile(selected); // Busca o perfil ao selecionar
+                            },
+                            fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                              return TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                                  hintText: loadedUser.name ?? loadedUser.login,
+                                  prefixIcon: const Icon(Icons.search),
+                                  border: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                                onSubmitted: (query) {
+                                  onFieldSubmitted(); // Chama a função do Autocomplete
+                                  bloc.fetchProfile(query); // Realiza a busca
+                                },
+                              );
+                            },
+                          );
                         },
                       ),
                     ),

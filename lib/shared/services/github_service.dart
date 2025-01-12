@@ -32,7 +32,7 @@ class GitHubService {
     } else if (response.statusCode == 401) {
       throw Exception('Unauthorized: Invalid token');
     } else {
-      throw Exception('User not found');
+      throw Exception('Não há usuários com esse nome');
     }
   }
 
@@ -50,7 +50,7 @@ class GitHubService {
     } else if (response.statusCode == 401) {
       throw Exception('Unauthorized: Invalid token');
     } else {
-      throw Exception('Repositories not found');
+      throw Exception('Repositórios não encontrados');
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:petize/modules/profile/profile_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../shared/models/repository_model.dart';
 import '../../shared/models/user_model.dart';
@@ -9,12 +10,47 @@ import '../../shared/services/user_preferences_service.dart';
 
 class ProfileBloc {
   final _stateController = StreamController<ProfileState>.broadcast();
+  final _recentSearchesController = StreamController<List<String>>.broadcast();
+
   final GitHubService githubService = GitHubService();
   final UserPreferencesService userPreferences = UserPreferencesService();
 
+  final List<String> _recentSearches = [];
+
   Stream<ProfileState> get stateStream => _stateController.stream;
+  Stream<List<String>> get recentSearchesStream => _recentSearchesController.stream;
+
+  ProfileBloc() {
+    _loadRecentSearches();
+  }
+
+  Future<void> _loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    _recentSearches.addAll(prefs.getStringList('recent_searches') ?? []);
+    _recentSearchesController.add(_recentSearches);
+  }
+
+  Future<void> _saveRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('recent_searches', _recentSearches);
+  }
+
+  void addSearch(String query) {
+    if (!_recentSearches.contains(query)) {
+      if (_recentSearches.length >= 5) {
+        _recentSearches.removeAt(0); // Remove o mais antigo
+      }
+      _recentSearches.add(query);
+    }
+    _recentSearchesController.add(_recentSearches);
+    _saveRecentSearches();
+  }
 
   Future<void> fetchProfile(String username, {String? sort}) async {
+    if (username.isNotEmpty) {
+      addSearch(username); // Adiciona a pesquisa às recentes
+    }
+
     _stateController.add(ProfileLoading());
     try {
       User? user;
@@ -46,5 +82,6 @@ class ProfileBloc {
 
   void dispose() {
     _stateController.close();
+    _recentSearchesController.close();
   }
 }

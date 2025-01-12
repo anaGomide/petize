@@ -13,6 +13,7 @@ class UserInfoCard extends StatelessWidget {
 
   void _openWebView(BuildContext context, String url, String title) async {
     if (kIsWeb) {
+      print('Abrindo link: $url');
       if (await canLaunchUrl(Uri.parse(url))) {
         await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       } else {
@@ -79,14 +80,14 @@ class UserInfoCard extends StatelessWidget {
             if (user.company != null && user.company!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Office.svg', user.company)!,
             if (user.location != null && user.location!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Pin.svg', user.location)!,
             if (user.email != null && user.email!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Email.svg', user.email)!,
-            _buildLinkRow(context, 'assets/icons/Link.svg', user.blog, 'Blog'),
+            if (user.blog != null && user.blog!.isNotEmpty) _buildLinkRow(context, 'assets/icons/Link.svg', user.blog!, 'Blog')!,
             if (user.twitterUsername != null && user.twitterUsername!.isNotEmpty)
               _buildLinkRow(
                 context,
                 'assets/icons/Twitter.svg',
-                '@${user.twitterUsername}',
-                'https://twitter.com/${user.twitterUsername}',
-              ),
+                'https://twitter.com/${user.twitterUsername}', // URL correta
+                '@${user.twitterUsername}', // Texto visível
+              )!,
           ],
         ),
       ),
@@ -144,14 +145,14 @@ class UserInfoCard extends StatelessWidget {
                 if (user.company != null && user.company!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Office.svg', user.company)!,
                 if (user.location != null && user.location!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Pin.svg', user.location)!,
                 if (user.email != null && user.email!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Email.svg', user.email)!,
-                _buildLinkRow(context, 'assets/icons/Link.svg', user.blog, 'Blog'),
+                if (user.blog != null && user.blog!.isNotEmpty) _buildLinkRow(context, 'assets/icons/Link.svg', user.blog, 'Blog')!,
                 if (user.twitterUsername != null && user.twitterUsername!.isNotEmpty)
                   _buildLinkRow(
                     context,
                     'assets/icons/Twitter.svg',
-                    '@${user.twitterUsername}',
-                    'https://twitter.com/${user.twitterUsername}',
-                  ),
+                    'https://twitter.com/${user.twitterUsername}', // URL correta
+                    '@${user.twitterUsername}', // Texto visível
+                  )!,
               ],
             ),
           ],
@@ -191,10 +192,10 @@ class UserInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildLinkRow(BuildContext context, String iconPath, String? link, String title) {
-    if (link == null || link.isEmpty) return const SizedBox.shrink();
+  Widget? _buildLinkRow(BuildContext context, String iconPath, String? link, String title) {
+    if (link == null || link.isEmpty) return null;
     return InkWell(
-      onTap: () => _openWebView(context, link, title), // Chama a função atualizada
+      onTap: () => _openWebView(context, link, title),
       child: _buildDetailRow(context, iconPath, link),
     );
   }

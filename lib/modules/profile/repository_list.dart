@@ -38,28 +38,31 @@ class RepositoryList extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white, // Cor de fundo da borda (opcional)
-                  borderRadius: BorderRadius.circular(12), // Bordas arredondadas
-                  border: Border.all(
-                    color: Colors.grey, // Cor da borda
-                    width: 1.5, // Largura da borda
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  width: 300,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8), // Bordas arredondadas
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.5,
+                    ),
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Espaça os itens
-                  children: [
-                    Row(
+                  child: IntrinsicWidth(
+                    child: Row(
+                      spacing: 8,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text('Ordenar por:'),
-                        const SizedBox(width: 8),
                         DropdownButton<String>(
-                          icon: const Icon(Icons.arrow_drop_down),
+                          icon: const Icon(Icons.keyboard_arrow_down),
                           value: initialSort,
-                          underline: const SizedBox(), // Remove a linha inferior
+                          underline: const SizedBox(),
                           items: const [
                             DropdownMenuItem(value: 'created', child: Text('Data de Criação')),
                             DropdownMenuItem(value: 'updated', child: Text('Última Atualização')),
@@ -74,10 +77,11 @@ class RepositoryList extends StatelessWidget {
                         ),
                       ],
                     ),
-                    // Ícone personalizado no final
-                  ],
+                  ),
                 ),
-              )),
+              ],
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: repositories.length,
