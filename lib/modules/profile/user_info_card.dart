@@ -53,8 +53,9 @@ class UserInfoCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(user.avatarUrl ?? 'https://example.com/default-avatar.png'),
+                  backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
                   radius: 40,
+                  child: user.avatarUrl == null ? Icon(Icons.person) : null,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,8 +77,8 @@ class UserInfoCard extends StatelessWidget {
                 user.bio ?? '',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-            _buildIconWithText(context, 'assets/icons/Group.svg', '${user.followers} seguidores'),
-            _buildIconWithText(context, 'assets/icons/Heart.svg', '${user.following} seguindo'),
+            if (user.followers != null) _buildIconWithText(context, 'assets/icons/Group.svg', '${user.followers} seguidores')!,
+            if (user.following != null) _buildIconWithText(context, 'assets/icons/Heart.svg', '${user.following} seguindo')!,
             if (user.company != null && user.company!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Office.svg', user.company)!,
             if (user.location != null && user.location!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Pin.svg', user.location)!,
             if (user.email != null && user.email!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Email.svg', user.email)!,
@@ -109,8 +110,9 @@ class UserInfoCard extends StatelessWidget {
               spacing: 16,
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(user.avatarUrl ?? 'https://example.com/default-avatar.png'),
+                  backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
                   radius: 30,
+                  child: user.avatarUrl == null ? Icon(Icons.person) : null,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,8 +132,8 @@ class UserInfoCard extends StatelessWidget {
             Row(
               spacing: 16,
               children: [
-                _buildIconWithText(context, 'assets/icons/Group.svg', '${user.followers} seguidores'),
-                _buildIconWithText(context, 'assets/icons/Heart.svg', '${user.following} seguindo'),
+                if (user.followers != null) _buildIconWithText(context, 'assets/icons/Group.svg', '${user.followers} seguidores')!,
+                if (user.following != null) _buildIconWithText(context, 'assets/icons/Heart.svg', '${user.following} seguindo')!,
               ],
             ),
             if (user.bio != null && user.bio!.isNotEmpty)
@@ -161,7 +163,8 @@ class UserInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildIconWithText(BuildContext context, String iconPath, String text) {
+  Widget? _buildIconWithText(BuildContext context, String iconPath, String text) {
+    if (text == null || text.isEmpty) return null;
     return Row(
       spacing: 4,
       children: [

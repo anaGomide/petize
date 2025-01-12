@@ -53,16 +53,19 @@ class RepositoryList extends StatelessWidget {
                     ),
                   ),
                   child: IntrinsicWidth(
-                    child: Row(
-                      spacing: 8,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('Ordenar por:'),
-                        DropdownButton<String>(
+                      child: Row(
+                    children: [
+                      const Flexible(
+                        flex: 1,
+                        child: Text('Ordenar por:'),
+                      ),
+                      Flexible(
+                        flex: 2,
+                        child: DropdownButton<String>(
                           icon: const Icon(Icons.keyboard_arrow_down),
                           value: initialSort,
                           underline: const SizedBox(),
+                          isExpanded: true, // Força o dropdown a se ajustar ao espaço disponível
                           items: const [
                             DropdownMenuItem(value: 'created', child: Text('Data de Criação')),
                             DropdownMenuItem(value: 'updated', child: Text('Última Atualização')),
@@ -75,9 +78,9 @@ class RepositoryList extends StatelessWidget {
                             }
                           },
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    ],
+                  )),
                 ),
               ],
             ),

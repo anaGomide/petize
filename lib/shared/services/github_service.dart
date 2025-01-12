@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -27,7 +26,6 @@ class GitHubService {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      inspect(json);
       return User.fromJson(json);
     } else if (response.statusCode == 401) {
       throw Exception('Unauthorized: Invalid token');
