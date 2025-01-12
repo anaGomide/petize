@@ -1,6 +1,6 @@
 class User {
   final String login;
-  final String avatarUrl;
+  final String? avatarUrl;
   final String? name;
   final String? company;
   final String? blog;
@@ -18,7 +18,7 @@ class User {
 
   User({
     required this.login,
-    required this.avatarUrl,
+    this.avatarUrl,
     this.name,
     this.company,
     this.blog,

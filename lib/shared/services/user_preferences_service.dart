@@ -7,7 +7,7 @@ class UserPreferencesService {
   Future<void> saveUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('login', user.login);
-    prefs.setString('avatar_url', user.avatarUrl);
+    prefs.setString('avatar_url', user.avatarUrl ?? '');
     prefs.setString('name', user.name ?? '');
   }
 

@@ -14,38 +14,57 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Centraliza os elementos verticalmente
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Adicionar a imagem no topo
             Padding(
               padding: const EdgeInsets.only(bottom: 20),
               child: Image.asset(
-                'assets/logo.png', // Caminho da imagem
-                width: 200, // Largura da imagem
+                'assets/logo.png',
+                width: 200,
               ),
             ),
-            // Campo de busca
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Search',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                ),
-                onSubmitted: (query) => bloc.searchUser(query),
+              child: StreamBuilder<List<String>>(
+                stream: bloc.recentSearchesStream,
+                builder: (context, snapshot) {
+                  final suggestions = snapshot.data ?? [];
+                  return Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return const Iterable<String>.empty();
+                      }
+                      return suggestions.where((suggestion) => suggestion.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                    },
+                    onSelected: (String selected) {
+                      bloc.searchUser(selected);
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Search',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(),
+                        ),
+                        onSubmitted: (query) {
+                          onFieldSubmitted();
+                          bloc.searchUser(query);
+                        },
+                      );
+                    },
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 20), // Espaço entre os elementos
-            // Estado do BLoC
+            const SizedBox(height: 20),
             StreamBuilder<HomeState>(
               stream: bloc.stateStream,
               builder: (context, snapshot) {
                 if (snapshot.data is HomeLoading) {
-                  // Exibe carregamento
                   return const CircularProgressIndicator();
                 } else if (snapshot.data is HomeError) {
-                  // Exibe mensagem de erro
                   return Text(
                     (snapshot.data as HomeError).message,
                     style: const TextStyle(color: Colors.red),
@@ -53,15 +72,14 @@ class HomePage extends StatelessWidget {
                 } else if (snapshot.data is HomeSuccess) {
                   final user = (snapshot.data as HomeSuccess).user;
 
-                  // Navega para a página de perfil ao encontrar o usuário
                   Future.microtask(() => Modular.to.pushNamed(
                         '/profile',
                         arguments: user,
                       ));
 
-                  return const SizedBox(); // Evita múltiplas navegações
+                  return const SizedBox();
                 }
-                return const SizedBox.shrink(); // Estado inicial sem conteúdo
+                return const SizedBox.shrink();
               },
             ),
           ],
