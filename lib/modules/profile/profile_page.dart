@@ -41,7 +41,53 @@ class ProfilePage extends StatelessWidget {
         bloc.fetchProfile(loadedUser.login);
 
         return Scaffold(
-          appBar: AppBar(title: Text(loadedUser.login)),
+          appBar: AppBar(
+            title: Row(
+              spacing: 150,
+              children: [
+                // Logo na AppBar
+                Image.asset(
+                  'assets/logo.png',
+                  width: 200,
+                ),
+
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      width: 500, // Define a largura máxima do campo de busca
+                      child: TextField(
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                          hintText: loadedUser.name ?? loadedUser.login,
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                            borderSide: BorderSide(color: Colors.purple, width: 2.0), // Borda roxa
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                            borderSide: BorderSide(color: Colors.purple, width: 2.0), // Borda roxa quando não está focado
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                            borderSide: BorderSide(color: Colors.purple, width: 2.0), // Borda roxa quando focado
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        onSubmitted: (query) {
+                          // Ação de busca ao submeter o texto
+                          bloc.fetchProfile(query);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.white, // Cor de fundo da AppBar
+          ),
           body: StreamBuilder<ProfileState>(
             stream: bloc.stateStream,
             builder: (context, snapshot) {
