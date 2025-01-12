@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,74 +42,76 @@ class ProfilePage extends StatelessWidget {
         bloc.fetchProfile(loadedUser.login);
 
         return Scaffold(
-          appBar: AppBar(
-            title: Row(
-              spacing: 150,
-              children: [
-                // Logo na AppBar
-                Image.asset(
-                  'assets/logo.png',
-                  width: 200,
-                ),
-
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: SizedBox(
-                      width: 500,
-                      child: StreamBuilder<List<String>>(
-                        stream: bloc.recentSearchesStream, // Stream de sugestões recentes
-                        builder: (context, snapshot) {
-                          final suggestions = snapshot.data ?? [];
-                          return Autocomplete<String>(
-                            optionsBuilder: (TextEditingValue textEditingValue) {
-                              if (textEditingValue.text.isEmpty) {
-                                return const Iterable<String>.empty();
-                              }
-                              return suggestions.where((suggestion) => suggestion.toLowerCase().contains(textEditingValue.text.toLowerCase()));
-                            },
-                            onSelected: (String selected) {
-                              bloc.fetchProfile(selected); // Busca o perfil ao selecionar
-                            },
-                            fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                              return TextField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                                  hintText: loadedUser.name ?? loadedUser.login,
-                                  prefixIcon: const Icon(Icons.search),
-                                  border: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                ),
-                                onSubmitted: (query) {
-                                  onFieldSubmitted(); // Chama a função do Autocomplete
-                                  bloc.fetchProfile(query); // Realiza a busca
-                                },
-                              );
-                            },
-                          );
-                        },
+          appBar: kIsWeb
+              ? AppBar(
+                  title: Row(
+                    spacing: 150,
+                    children: [
+                      // Logo na AppBar
+                      Image.asset(
+                        'assets/logo.png',
+                        width: 200,
                       ),
-                    ),
+
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox(
+                            width: 500,
+                            child: StreamBuilder<List<String>>(
+                              stream: bloc.recentSearchesStream, // Stream de sugestões recentes
+                              builder: (context, snapshot) {
+                                final suggestions = snapshot.data ?? [];
+                                return Autocomplete<String>(
+                                  optionsBuilder: (TextEditingValue textEditingValue) {
+                                    if (textEditingValue.text.isEmpty) {
+                                      return const Iterable<String>.empty();
+                                    }
+                                    return suggestions.where((suggestion) => suggestion.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                                  },
+                                  onSelected: (String selected) {
+                                    bloc.fetchProfile(selected); // Busca o perfil ao selecionar
+                                  },
+                                  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                    return TextField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      decoration: InputDecoration(
+                                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                                        hintText: loadedUser.name ?? loadedUser.login,
+                                        prefixIcon: const Icon(Icons.search),
+                                        border: OutlineInputBorder(
+                                          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                      ),
+                                      onSubmitted: (query) {
+                                        onFieldSubmitted(); // Chama a função do Autocomplete
+                                        bloc.fetchProfile(query); // Realiza a busca
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.white,
-          ),
+                  backgroundColor: Colors.white,
+                )
+              : null,
           body: StreamBuilder<ProfileState>(
             stream: bloc.stateStream,
             builder: (context, snapshot) {
@@ -142,20 +145,23 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildMobileLayout(BuildContext context, ProfileSuccess profile, ProfileBloc bloc, ValueNotifier<String> sortNotifier) {
-    return Column(
-      children: [
-        UserInfoCard(user: profile.user),
-        Expanded(
-          child: RepositoryList(
-            repositories: profile.repositories,
-            initialSort: sortNotifier.value,
-            onSortChanged: (sort) {
-              sortNotifier.value = sort;
-              bloc.fetchProfile(profile.user.login, sort: sort);
-            },
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        children: [
+          UserInfoCard(user: profile.user),
+          Expanded(
+            child: RepositoryList(
+              repositories: profile.repositories,
+              initialSort: sortNotifier.value,
+              onSortChanged: (sort) {
+                sortNotifier.value = sort;
+                bloc.fetchProfile(profile.user.login, sort: sort);
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

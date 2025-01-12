@@ -38,7 +38,7 @@ class RepositoryList extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(top: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -48,7 +48,7 @@ class RepositoryList extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8), // Bordas arredondadas
                     border: Border.all(
-                      color: Colors.grey,
+                      color: Color(0xFFE2E8F0),
                       width: 1.5,
                     ),
                   ),

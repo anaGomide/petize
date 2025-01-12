@@ -71,10 +71,11 @@ class UserInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-            Text(
-              user.bio ?? '',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
+            if (user.bio != null && user.bio!.isNotEmpty)
+              Text(
+                user.bio ?? '',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             _buildIconWithText(context, 'assets/icons/Group.svg', '${user.followers} seguidores'),
             _buildIconWithText(context, 'assets/icons/Heart.svg', '${user.following} seguindo'),
             if (user.company != null && user.company!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Office.svg', user.company)!,
@@ -101,15 +102,16 @@ class UserInfoCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          spacing: 8,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              spacing: 16,
               children: [
                 CircleAvatar(
                   backgroundImage: NetworkImage(user.avatarUrl ?? 'https://example.com/default-avatar.png'),
                   radius: 30,
                 ),
-                const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -125,20 +127,18 @@ class UserInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              user.bio ?? '',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
+            Row(
+              spacing: 16,
               children: [
                 _buildIconWithText(context, 'assets/icons/Group.svg', '${user.followers} seguidores'),
                 _buildIconWithText(context, 'assets/icons/Heart.svg', '${user.following} seguindo'),
               ],
             ),
-            const SizedBox(height: 16),
+            if (user.bio != null && user.bio!.isNotEmpty)
+              Text(
+                user.bio ?? '',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             Wrap(
               spacing: 8,
               children: [
