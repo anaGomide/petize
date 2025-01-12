@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../shared/models/user_model.dart';
 import '../../shared/widgets/webview_page.dart';
@@ -9,42 +11,57 @@ class UserInfoCard extends StatelessWidget {
 
   const UserInfoCard({super.key, required this.user});
 
-  void _openWebView(BuildContext context, String url, String title) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => WebViewPage(url: url, title: title),
-      ),
-    );
+  void _openWebView(BuildContext context, String url, String title) async {
+    if (kIsWeb) {
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não foi possível abrir o link: $url')),
+        );
+      }
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => WebViewPage(url: url, title: title),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0, // Elevação suave para dar destaque
+    return kIsWeb ? _buildWebLayout(context) : _buildMobileLayout(context);
+  }
 
+  // Layout para web
+  Widget _buildWebLayout(BuildContext context) {
+    return Card(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+      elevation: 0,
+      //margin: const EdgeInsets.all(16.0),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           spacing: 16,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Nome e login do usuário
             Row(
-              spacing: 16,
+              spacing: 8,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(user.avatarUrl),
-                  radius: 30, // Tamanho do avatar
+                  backgroundImage: NetworkImage(user.avatarUrl ?? 'https://example.com/default-avatar.png'),
+                  radius: 40,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Nome
                     Text(
                       user.name ?? user.login,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    // Login
                     Text(
                       '@${user.login}',
                       style: Theme.of(context).textTheme.bodyMedium,
@@ -53,146 +70,132 @@ class UserInfoCard extends StatelessWidget {
                 ),
               ],
             ),
+            Text(
+              user.bio ?? '',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            _buildIconWithText(context, 'assets/icons/Group.svg', '${user.followers} seguidores'),
+            _buildIconWithText(context, 'assets/icons/Heart.svg', '${user.following} seguindo'),
+            if (user.company != null && user.company!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Office.svg', user.company)!,
+            if (user.location != null && user.location!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Pin.svg', user.location)!,
+            if (user.email != null && user.email!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Email.svg', user.email)!,
+            _buildLinkRow(context, 'assets/icons/Link.svg', user.blog, 'Blog'),
+            if (user.twitterUsername != null && user.twitterUsername!.isNotEmpty)
+              _buildLinkRow(
+                context,
+                'assets/icons/Twitter.svg',
+                '@${user.twitterUsername}',
+                'https://twitter.com/${user.twitterUsername}',
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // Seguidores e seguindo
+  // Layout para mobile
+  Widget _buildMobileLayout(BuildContext context) {
+    return Card(
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
-              spacing: 16,
               children: [
-                Row(
-                  children: [
-                    SvgPicture.asset('assets/icons/Group.svg', height: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${user.followers} seguidores',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+                CircleAvatar(
+                  backgroundImage: NetworkImage(user.avatarUrl ?? 'https://example.com/default-avatar.png'),
+                  radius: 30,
                 ),
-                Row(
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SvgPicture.asset('assets/icons/Heart.svg', height: 16),
-                    const SizedBox(width: 4),
                     Text(
-                      '${user.following} seguindo',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      user.name ?? user.login,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Text(
+                      '@${user.login}',
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
               ],
             ),
-
-            // Bio do usuário
-            if (user.bio != null && user.bio!.isNotEmpty)
-              Text(
-                user.bio!,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-
-            // Empresa, localização e email
+            const SizedBox(height: 16),
+            Text(
+              user.bio ?? '',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
             Wrap(
               spacing: 8,
               children: [
-                if (user.company != null && user.company!.isNotEmpty)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset('assets/icons/Office.svg', height: 16),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          user.company!,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                if (user.location != null && user.location!.isNotEmpty)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset('assets/icons/Pin.svg', height: 16),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          user.location!,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                if (user.email != null && user.email!.isNotEmpty)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset('assets/icons/Email.svg', height: 16),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          user.email!,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
+                _buildIconWithText(context, 'assets/icons/Group.svg', '${user.followers} seguidores'),
+                _buildIconWithText(context, 'assets/icons/Heart.svg', '${user.following} seguindo'),
               ],
             ),
-
-            // Link e Twitter
+            const SizedBox(height: 16),
             Wrap(
+              spacing: 8,
               children: [
-                if (user.blog != null && user.blog!.isNotEmpty)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset('assets/icons/Link.svg', height: 16),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: InkWell(
-                          onTap: () => _openWebView(context, user.blog!, 'Blog'),
-                          child: Text(
-                            user.blog!,
-                            style: Theme.of(context).textTheme.bodySmall,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                if (user.company != null && user.company!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Office.svg', user.company)!,
+                if (user.location != null && user.location!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Pin.svg', user.location)!,
+                if (user.email != null && user.email!.isNotEmpty) _buildDetailRow(context, 'assets/icons/Email.svg', user.email)!,
+                _buildLinkRow(context, 'assets/icons/Link.svg', user.blog, 'Blog'),
                 if (user.twitterUsername != null && user.twitterUsername!.isNotEmpty)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset('assets/icons/Twitter.svg', height: 16),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: InkWell(
-                          onTap: () => _openWebView(
-                            context,
-                            'https://twitter.com/${user.twitterUsername}',
-                            'Twitter',
-                          ),
-                          child: Text(
-                            '@${user.twitterUsername}',
-                            style: Theme.of(context).textTheme.bodySmall,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
+                  _buildLinkRow(
+                    context,
+                    'assets/icons/Twitter.svg',
+                    '@${user.twitterUsername}',
+                    'https://twitter.com/${user.twitterUsername}',
                   ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildIconWithText(BuildContext context, String iconPath, String text) {
+    return Row(
+      spacing: 4,
+      children: [
+        SvgPicture.asset(iconPath, height: 16),
+        Text(
+          text,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+
+  Widget? _buildDetailRow(BuildContext context, String iconPath, String? text) {
+    if (text == null || text.isEmpty) return null;
+
+    return Row(
+      spacing: 4,
+      children: [
+        SvgPicture.asset(iconPath, height: 22),
+        Flexible(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodySmall,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLinkRow(BuildContext context, String iconPath, String? link, String title) {
+    if (link == null || link.isEmpty) return const SizedBox.shrink();
+    return InkWell(
+      onTap: () => _openWebView(context, link, title), // Chama a função atualizada
+      child: _buildDetailRow(context, iconPath, link),
     );
   }
 }

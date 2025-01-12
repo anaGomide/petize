@@ -26,7 +26,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = Modular.get<ProfileBloc>();
-    final sortNotifier = ValueNotifier<String>('created'); // Gerencia o valor do sort
+    final sortNotifier = ValueNotifier<String>('created');
 
     return FutureBuilder<User>(
       future: user != null ? Future.value(user) : _loadUserFromPreferences(),
@@ -55,7 +55,7 @@ class ProfilePage extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
-                      width: 500, // Define a largura máxima do campo de busca
+                      width: 500,
                       child: TextField(
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
@@ -63,21 +63,20 @@ class ProfilePage extends StatelessWidget {
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                            borderSide: BorderSide(color: Colors.purple, width: 2.0), // Borda roxa
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                            borderSide: BorderSide(color: Colors.purple, width: 2.0), // Borda roxa quando não está focado
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                            borderSide: BorderSide(color: Colors.purple, width: 2.0), // Borda roxa quando focado
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2.0),
                           ),
                           filled: true,
                           fillColor: Colors.white,
                         ),
                         onSubmitted: (query) {
-                          // Ação de busca ao submeter o texto
                           bloc.fetchProfile(query);
                         },
                       ),
@@ -86,7 +85,7 @@ class ProfilePage extends StatelessWidget {
                 ),
               ],
             ),
-            backgroundColor: Colors.white, // Cor de fundo da AppBar
+            backgroundColor: Colors.white,
           ),
           body: StreamBuilder<ProfileState>(
             stream: bloc.stateStream,
@@ -123,16 +122,14 @@ class ProfilePage extends StatelessWidget {
   Widget _buildMobileLayout(BuildContext context, ProfileSuccess profile, ProfileBloc bloc, ValueNotifier<String> sortNotifier) {
     return Column(
       children: [
-        // Card com as informações do usuário
         UserInfoCard(user: profile.user),
-        // Lista de repositórios com a opção de ordenação
         Expanded(
           child: RepositoryList(
             repositories: profile.repositories,
-            initialSort: sortNotifier.value, // Passa o valor do sort atual
+            initialSort: sortNotifier.value,
             onSortChanged: (sort) {
-              sortNotifier.value = sort; // Atualiza o valor do sort
-              bloc.fetchProfile(profile.user.login, sort: sort); // Atualiza com o novo parâmetro
+              sortNotifier.value = sort;
+              bloc.fetchProfile(profile.user.login, sort: sort);
             },
           ),
         ),
@@ -141,27 +138,52 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildDesktopLayout(BuildContext context, ProfileSuccess profile, ProfileBloc bloc, ValueNotifier<String> sortNotifier) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Card com as informações do usuário no lado esquerdo
-        Expanded(
-          flex: 2,
-          child: UserInfoCard(user: profile.user),
-        ),
-        // Lista de repositórios no lado direito com a opção de ordenação
-        Expanded(
-          flex: 5,
-          child: RepositoryList(
-            repositories: profile.repositories,
-            initialSort: sortNotifier.value, // Passa o valor do sort atual
-            onSortChanged: (sort) {
-              sortNotifier.value = sort; // Atualiza o valor do sort
-              bloc.fetchProfile(profile.user.login, sort: sort); // Atualiza com o novo parâmetro
-            },
+    return Padding(
+      padding: const EdgeInsets.all(32.0), // Margem para a tela
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Ajusta ao conteúdo
+              crossAxisAlignment: CrossAxisAlignment.stretch, // Faz o botão ter a mesma largura que o UserInfoCard
+              children: [
+                UserInfoCard(user: profile.user),
+                const SizedBox(height: 16), // Espaçamento entre o Card e o botão
+                ElevatedButton(
+                  onPressed: () {
+                    // Adicione a lógica do botão "Contato"
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6.0), // Borda arredondada de 6px
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12), // Altura do botão
+                  ),
+                  child: const Text(
+                    'Contato',
+                    style: TextStyle(color: Colors.white), // Texto do botão
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 32), // Espaçamento entre o Card e a lista de repositórios
+          Expanded(
+            flex: 5,
+            child: RepositoryList(
+              repositories: profile.repositories,
+              initialSort: sortNotifier.value, // Passa o valor do sort atual
+              onSortChanged: (sort) {
+                sortNotifier.value = sort; // Atualiza o valor do sort
+                bloc.fetchProfile(profile.user.login, sort: sort); // Atualiza com o novo parâmetro
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

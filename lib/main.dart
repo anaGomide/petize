@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart'; // Para usar kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:google_fonts/google_fonts.dart'; // Importa o GoogleFonts
@@ -32,8 +33,9 @@ class MyApp extends StatelessWidget {
       title: 'Search d_evs',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
+          primary: Color(0xFF8C19D2),
           seedColor: Colors.deepPurple,
-          surface: Colors.white,
+          surface: kIsWeb ? const Color(0xFFFCFCFC) : Colors.white, // Define a cor de acordo com a plataforma
         ),
         textTheme: TextTheme(
           titleLarge: GoogleFonts.inter(
