@@ -11,6 +11,6 @@ class ProfileModule extends Module {
 
   @override
   List<ModularRoute> get routes => [
-        ChildRoute('/', child: (context, args) => ProfilePage()),
+        ChildRoute('/', child: (context, args) => ProfilePage(user: args.data)),
       ];
 }

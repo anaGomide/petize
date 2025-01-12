@@ -4,15 +4,16 @@ import 'modules/home/home_module.dart';
 import 'modules/profile/profile_module.dart';
 
 class AppModule extends Module {
-  @override
-  List<Module> get imports => [];
+  final String _initialRoute;
 
-  @override
-  List<Bind> get binds => [];
+  AppModule({required String initialRoute}) : _initialRoute = initialRoute;
 
   @override
   List<ModularRoute> get routes => [
+        RedirectRoute('/', to: '/home'),
         ModuleRoute('/home', module: HomeModule()),
         ModuleRoute('/profile', module: ProfileModule()),
       ];
+
+  String get initialRoute => _initialRoute;
 }
