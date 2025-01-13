@@ -18,6 +18,7 @@ class TestHttpOverrides extends HttpOverrides {
 }
 
 class MockHttpClient implements HttpClient {
+  @override
   bool autoUncompress = true;
 
   @override
@@ -86,7 +87,6 @@ class MockWebViewPlatform extends WebViewPlatform {
 class MockPlatformWebViewController extends PlatformWebViewController {
   MockPlatformWebViewController(PlatformWebViewControllerCreationParams params) : super.implementation(params);
 
-  @override
   Future<void> loadUrl(String url, Map<String, String>? headers) async {
     print('Carregando URL simulada: $url');
   }

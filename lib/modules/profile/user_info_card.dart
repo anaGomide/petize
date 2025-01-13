@@ -13,7 +13,6 @@ class UserInfoCard extends StatelessWidget {
 
   void _openWebView(BuildContext context, String url, String title) async {
     if (kIsWeb) {
-      print('Abrindo link: $url');
       if (await canLaunchUrl(Uri.parse(url))) {
         await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       } else {
@@ -152,8 +151,8 @@ class UserInfoCard extends StatelessWidget {
                   _buildLinkRow(
                     context,
                     'assets/icons/Twitter.svg',
-                    'https://twitter.com/${user.twitterUsername}', // URL correta
-                    '@${user.twitterUsername}', // Texto visível
+                    'https://twitter.com/${user.twitterUsername}',
+                    '@${user.twitterUsername}',
                   )!,
               ],
             ),
@@ -164,7 +163,7 @@ class UserInfoCard extends StatelessWidget {
   }
 
   Widget? _buildIconWithText(BuildContext context, String iconPath, String text) {
-    if (text == null || text.isEmpty) return null;
+    if (text.isEmpty) return null;
     return Row(
       spacing: 4,
       children: [

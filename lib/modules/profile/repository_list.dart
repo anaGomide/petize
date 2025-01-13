@@ -46,7 +46,7 @@ class RepositoryList extends StatelessWidget {
                   width: 300,
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: Color(0xFFE2E8F0),
                       width: 1.5,
@@ -65,7 +65,7 @@ class RepositoryList extends StatelessWidget {
                           icon: const Icon(Icons.keyboard_arrow_down),
                           value: initialSort,
                           underline: const SizedBox(),
-                          isExpanded: true, // Força o dropdown a se ajustar ao espaço disponível
+                          isExpanded: true,
                           items: const [
                             DropdownMenuItem(value: 'created', child: Text('Data de Criação')),
                             DropdownMenuItem(value: 'updated', child: Text('Última Atualização')),

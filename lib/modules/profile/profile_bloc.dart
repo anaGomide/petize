@@ -38,7 +38,7 @@ class ProfileBloc {
   void addSearch(String query) {
     if (!_recentSearches.contains(query)) {
       if (_recentSearches.length >= 5) {
-        _recentSearches.removeAt(0); // Remove o mais antigo
+        _recentSearches.removeAt(0);
       }
       _recentSearches.add(query);
     }
@@ -48,7 +48,7 @@ class ProfileBloc {
 
   Future<void> fetchProfile(String username, {String? sort}) async {
     if (username.isNotEmpty) {
-      addSearch(username); // Adiciona a pesquisa às recentes
+      addSearch(username);
     }
 
     _stateController.add(ProfileLoading());
@@ -63,7 +63,6 @@ class ProfileBloc {
           repositories = await githubService.fetchRepositories(user.login, sort: sort);
         }
       } else {
-        // Busca na API e salva no SharedPreferences
         user = await githubService.fetchUser(username);
         repositories = await githubService.fetchRepositories(username, sort: sort);
         await userPreferences.saveUser(user);
@@ -73,7 +72,6 @@ class ProfileBloc {
         throw Exception('No user data available.');
       }
 
-      // Atualiza o estado com os dados carregados
       _stateController.add(ProfileSuccess(user, repositories));
     } catch (e) {
       _stateController.add(ProfileError('Failed to load profile: $e'));

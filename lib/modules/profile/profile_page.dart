@@ -59,7 +59,7 @@ class ProfilePage extends StatelessWidget {
                           child: SizedBox(
                             width: 500,
                             child: StreamBuilder<List<String>>(
-                              stream: bloc.recentSearchesStream, // Stream de sugestões recentes
+                              stream: bloc.recentSearchesStream,
                               builder: (context, snapshot) {
                                 final suggestions = snapshot.data ?? [];
                                 return Autocomplete<String>(
@@ -70,7 +70,7 @@ class ProfilePage extends StatelessWidget {
                                     return suggestions.where((suggestion) => suggestion.toLowerCase().contains(textEditingValue.text.toLowerCase()));
                                   },
                                   onSelected: (String selected) {
-                                    bloc.fetchProfile(selected); // Busca o perfil ao selecionar
+                                    bloc.fetchProfile(selected);
                                   },
                                   fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
                                     return TextField(
@@ -96,8 +96,8 @@ class ProfilePage extends StatelessWidget {
                                         fillColor: Colors.white,
                                       ),
                                       onSubmitted: (query) {
-                                        onFieldSubmitted(); // Chama a função do Autocomplete
-                                        bloc.fetchProfile(query); // Realiza a busca
+                                        onFieldSubmitted();
+                                        bloc.fetchProfile(query);
                                       },
                                     );
                                   },
@@ -167,18 +167,18 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildDesktopLayout(BuildContext context, ProfileSuccess profile, ProfileBloc bloc, ValueNotifier<String> sortNotifier) {
     return Padding(
-      padding: const EdgeInsets.all(32.0), // Margem para a tela
+      padding: const EdgeInsets.all(32.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 2,
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Ajusta ao conteúdo
-              crossAxisAlignment: CrossAxisAlignment.stretch, // Faz o botão ter a mesma largura que o UserInfoCard
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 UserInfoCard(user: profile.user),
-                const SizedBox(height: 16), // Espaçamento entre o Card e o botão
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     // Adicione a lógica do botão "Contato"
@@ -186,27 +186,27 @@ class ProfilePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6.0), // Borda arredondada de 6px
+                      borderRadius: BorderRadius.circular(6.0),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12), // Altura do botão
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: const Text(
                     'Contato',
-                    style: TextStyle(color: Colors.white), // Texto do botão
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 32), // Espaçamento entre o Card e a lista de repositórios
+          const SizedBox(width: 32),
           Expanded(
             flex: 5,
             child: RepositoryList(
               repositories: profile.repositories,
-              initialSort: sortNotifier.value, // Passa o valor do sort atual
+              initialSort: sortNotifier.value,
               onSortChanged: (sort) {
-                sortNotifier.value = sort; // Atualiza o valor do sort
-                bloc.fetchProfile(profile.user.login, sort: sort); // Atualiza com o novo parâmetro
+                sortNotifier.value = sort;
+                bloc.fetchProfile(profile.user.login, sort: sort);
               },
             ),
           ),
